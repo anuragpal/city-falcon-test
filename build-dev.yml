@@ -1,0 +1,11 @@
+version: "3.3"
+
+services:
+  backend_api:
+    build:
+      context: ./backend-api
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend-api:/go/src/api
+    ports:
+      - "3000:3000"

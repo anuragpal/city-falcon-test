@@ -1,0 +1,7 @@
+FROM golang:1.20.4-alpine
+RUN apk add --update tzdata bash wget curl git;
+RUN mkdir -p $$GOPATH/bin && go install github.com/cosmtrek/air@latest && go install github.com/eaburns/Watch@latest
+ADD . /go/src/api
+WORKDIR /go/src/api
+RUN go mod tidy
+CMD air
