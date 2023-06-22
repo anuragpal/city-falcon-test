@@ -1,10 +1,12 @@
 # City Falcon Test
 
 ## Requirement
-[Initial Requirement](https://github.com/anuragpal/city-falcon-test/docs/requirement.md)
+[Initial Requirement](https://github.com/anuragpal/city-falcon-test/blob/main/docs/requirement.md)
+
 
 ## Setup Requirement
 * System should have docker installed
+* [Enable Postgres Stats](https://github.com/anuragpal/city-falcon-test/blob/main/docs/slow-query.md)
 
 ## Installation
 ### For Development

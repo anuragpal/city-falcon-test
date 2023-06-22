@@ -2,6 +2,7 @@ package main
 
 import (
     "github.com/gofiber/fiber/v2"
+    "github.com/anuragpal/city-falcon-test/api/app"
 )
 
 func main() {
@@ -10,9 +11,6 @@ func main() {
 }
 
 func Setup() *fiber.App {
-    app := fiber.New()
-    app.Get("/", func(c *fiber.Ctx) error {
-        return c.SendString("OK")
-    })
-    return app
+    instance := app.App{}
+    return instance.Initialize()
 }

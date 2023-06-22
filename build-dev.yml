@@ -5,7 +5,18 @@ services:
     build:
       context: ./backend-api
       dockerfile: Dockerfile.dev
+    environment:
+      - "POSTGRES_URI=192.168.29.86:5432"
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=employees
     volumes:
       - ./backend-api:/go/src/api
     ports:
       - "3000:3000"
+
+  adminer:
+    image: adminer
+    restart: always 
+    ports:
+      - 3005:8080
