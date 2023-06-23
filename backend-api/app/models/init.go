@@ -12,7 +12,6 @@ import (
 var (
     DB        *sql.DB
     RC        *redis.Client
-    RC1       *redis.Client
 )
 
 func init() {
@@ -26,12 +25,6 @@ func init() {
     }
 
     RC = redis.NewClient(&redis.Options{
-        Addr:     os.Getenv("REDIS_URI"),
-        Password: "",
-        DB:       0,
-    })
-
-    RC1 = redis.NewClient(&redis.Options{
         Addr:     os.Getenv("REDIS_URI"),
         Password: "",
         DB:       0,

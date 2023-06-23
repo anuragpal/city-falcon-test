@@ -9,6 +9,7 @@ import (
     "strconv"
     "encoding/json"
     "github.com/gofiber/fiber/v2"
+    "github.com/anuragpal/city-falcon-test/api/app/utils"
     "github.com/anuragpal/city-falcon-test/api/app/models"
 )
 
@@ -25,6 +26,10 @@ func Add(c *fiber.Ctx) error {
         })
     }
     
+    err := utils.RemoveCache("users_")
+    if err != nil {
+        log.Println("Failed to remove cache.")
+    }
     result, status := u.Add()
     return c.Status(status).JSON(result)
 }
@@ -38,6 +43,10 @@ func Update(c *fiber.Ctx) error {
     }
     
     u.Id = c.Params("id")
+    err := utils.RemoveCache("users_")
+    if err != nil {
+        log.Println("Failed to remove cache.")
+    }
     result, status := u.Update()
     return c.Status(status).JSON(result)
 }
@@ -63,7 +72,7 @@ func List(c *fiber.Ctx) error {
     params.RecordPerPage, _ = strconv.ParseInt(c.Query("rpp"), 10, 64)
 
     if cnt >= CACHE_MIN_HITS {
-        cmb := []string{h, "users"}
+        cmb := []string{"users", h}
         hKey := strings.Join(cmb, "_")
         val, err := models.RC.Get(ctx, hKey).Result()
         if err != nil {
@@ -97,6 +106,10 @@ func List(c *fiber.Ctx) error {
 func Delete(c *fiber.Ctx) error {
     u := models.User{}
     u.Id = c.Params("id")
+    err := utils.RemoveCache("users_")
+    if err != nil {
+        log.Println("Failed to remove cache.")
+    }
     result, status := u.Remove()
     return c.Status(status).JSON(result)
 }
