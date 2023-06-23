@@ -2,14 +2,17 @@ package models
 
 import (
     "os"
-    "fmt"
+    "log"
     "strings"
     "database/sql"
     _ "github.com/lib/pq"
+    "github.com/redis/go-redis/v9"
 )
 
 var (
     DB        *sql.DB
+    RC        *redis.Client
+    RC1       *redis.Client
 )
 
 func init() {
@@ -19,8 +22,23 @@ func init() {
 
     DB, err = sql.Open("postgres", conn)
     if err != nil {
-        fmt.Println("DB Error", err)
-    } else {
-        fmt.Println("DB Connected anurag")
+        log.Println(err)
+    }
+
+    RC = redis.NewClient(&redis.Options{
+        Addr:     os.Getenv("REDIS_URI"),
+        Password: "",
+        DB:       0,
+    })
+
+    RC1 = redis.NewClient(&redis.Options{
+        Addr:     os.Getenv("REDIS_URI"),
+        Password: "",
+        DB:       0,
+    })
+
+    err = DB.Ping()
+    if err != nil {
+        log.Println(err)
     }
 }

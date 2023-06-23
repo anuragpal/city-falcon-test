@@ -1,6 +1,7 @@
 package models
 
 import (
+    "log"
     "time"
     "errors"
     "strings"
@@ -42,10 +43,12 @@ func (u User) UniqueEmail(value interface{}) error {
     }
     stmt, err := DB.Prepare(sql)
     if err != nil {
+        log.Println(err)
     }
 
     err = stmt.QueryRow(params...).Scan(&cnt)
     if err != nil {
+        log.Println(err)
     }
 
     if cnt > 0 {
@@ -74,11 +77,13 @@ func (u User) Validate() error {
 func (u User) Add() (fiber.Map, int) {
     err := u.Validate()
     if err != nil {
+        log.Println(err)
         return fiber.Map{"errors": err}, fiber.StatusBadRequest
     }
 
     pwd, errPwd := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
     if errPwd != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
@@ -90,6 +95,7 @@ func (u User) Add() (fiber.Map, int) {
     ) returning id`, u.FirstName, u.LastName, u.MiddleName, u.Email, string(pwd), time.Now().UTC(), time.Now().UTC()).Scan(&u.Id)
 
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
     return fiber.Map{}, fiber.StatusCreated
@@ -113,24 +119,29 @@ func (u User) Update() (fiber.Map, int) {
     `
     stmt, err := DB.Prepare(sqlQuery)
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
     err = stmt.QueryRow(u.Id).Scan(&u.Id)
     if err != nil && err != sql.ErrNoRows {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     } else if err == sql.ErrNoRows {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusNotFound
     }
 
     err = u.ValidateUpdateUser()
     if err != nil {
+        log.Println(err)
         return fiber.Map{"errors": err}, fiber.StatusBadRequest
     }
 
     updateQuery := `UPDATE users SET first_name = $1, last_name = $2, middle_name = $3, email = $4, modified_date = $5 WHERE id = $6`
     _, errUpdate := DB.Exec(updateQuery, u.FirstName, u.LastName, u.MiddleName, u.Email, time.Now().UTC(), u.Id)
     if errUpdate != nil {
+        log.Println(errUpdate)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
@@ -148,11 +159,13 @@ func (u User) Remove() (fiber.Map, int) {
     `
     stmt, err := DB.Prepare(sqlQuery)
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
     err = stmt.QueryRow(u.Id).Scan(&u.Id)
     if err != nil && err != sql.ErrNoRows {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     } else if err == sql.ErrNoRows {
         return fiber.Map{}, fiber.StatusNotFound
@@ -161,6 +174,7 @@ func (u User) Remove() (fiber.Map, int) {
     updateQuery := `UPDATE users SET status = $1, modified_date = $2 WHERE id = $3`
     _, errUpdate := DB.Exec(updateQuery, 2, time.Now().UTC(), u.Id)
 	if errUpdate != nil {
+        log.Println(errUpdate)
 		return fiber.Map{}, fiber.StatusInternalServerError
 	}
     return fiber.Map{}, fiber.StatusOK
@@ -198,11 +212,13 @@ func (u User) List(l ListParams) (fiber.Map, int) {
 
     stmt, err := DB.Prepare(`SELECT count(id) as cnt FROM users as u WHERE ` + strings.Join(conditions, " AND "))
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
     err = stmt.QueryRow(params...).Scan(&total)
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
@@ -225,6 +241,7 @@ func (u User) List(l ListParams) (fiber.Map, int) {
     rows, errRows := DB.Query(sql, params...)
 
     if errRows != nil {
+        log.Println(errRows)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
@@ -232,6 +249,7 @@ func (u User) List(l ListParams) (fiber.Map, int) {
         user := User{}
         errScan := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.MiddleName, &user.Email, &user.Status)
         if errScan != nil {
+            log.Println(errScan)
             return fiber.Map{}, fiber.StatusInternalServerError
         }
         users = append(users, user)
@@ -265,13 +283,16 @@ func (u User) Details() (fiber.Map, int) {
     stmt, err := DB.Prepare(query)
 
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
     err = stmt.QueryRow(u.Id).Scan(&u.Id, &u.FirstName, &u.LastName, &u.MiddleName, &u.Email, &u.Status)
     if err != nil  && err != sql.ErrNoRows {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     } else if err == sql.ErrNoRows {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusNotFound
     }
     return fiber.Map{"user": u}, fiber.StatusOK

@@ -1,6 +1,7 @@
 package models
 
 import (
+    "log"
     "strings"
     "strconv"
     "github.com/gofiber/fiber/v2"
@@ -50,11 +51,13 @@ func (ps PgStats) PSqlStats(l ListParams) (fiber.Map, int) {
 
     stmt, err := DB.Prepare(`SELECT count(p.queryid) as cnt FROM pg_stat_statements as p WHERE ` + strings.Join(conditions, " AND "))
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
     err = stmt.QueryRow(params...).Scan(&total)
     if err != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
@@ -77,6 +80,7 @@ func (ps PgStats) PSqlStats(l ListParams) (fiber.Map, int) {
     rows, errRows := DB.Query(sql, params...)
 
     if errRows != nil {
+        log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
 
@@ -84,6 +88,7 @@ func (ps PgStats) PSqlStats(l ListParams) (fiber.Map, int) {
         stat := Stats{}
         errScan := rows.Scan(&stat.Query, &stat.ExecutedTime, &stat.Calls, &stat.Mean, &stat.CPU)
         if errScan != nil {
+            log.Println(err)
             return fiber.Map{}, fiber.StatusInternalServerError
         }
         stats = append(stats, stat)

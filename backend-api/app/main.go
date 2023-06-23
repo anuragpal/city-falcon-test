@@ -14,9 +14,9 @@ type App struct {
 
 func (a *App) Initialize() *fiber.App {
     app := fiber.New()
-    app.Use(
-        logger.New(),
-    )
+    app.Use(logger.New(logger.Config{
+        Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+    }))
     
     app.Get("/", Default)
 

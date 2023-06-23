@@ -10,6 +10,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=employees
+      - "REDIS_URI=192.168.29.86:6378"
+      - "CACHE_MIN_HITS=5"
     volumes:
       - ./backend-api:/go/src/api
     ports:
@@ -20,3 +22,11 @@ services:
     restart: always 
     ports:
       - 3005:8080
+
+  redis:
+    image: "redis:alpine"
+    hostname: redis
+    expose:
+      - "6379"
+    ports:
+      - "6378:6379"
