@@ -110,29 +110,12 @@ func (u User) ValidateUpdateUser() error {
 }
 
 func (u User) Update() (fiber.Map, int) {
-    sqlQuery := `
-    SELECT
-        u.id
-    FROM users as u
-    WHERE
-        u.id = $1
-    `
-    stmt, err := DB.Prepare(sqlQuery)
-    if err != nil {
-        log.Println(err)
-        return fiber.Map{}, fiber.StatusInternalServerError
-    }
-
-    err = stmt.QueryRow(u.Id).Scan(&u.Id)
-    if err != nil && err != sql.ErrNoRows {
-        log.Println(err)
-        return fiber.Map{}, fiber.StatusInternalServerError
-    } else if err == sql.ErrNoRows {
-        log.Println(err)
+    isUser := u.IsValidUser(u.Id)
+    if(!isUser) {
         return fiber.Map{}, fiber.StatusNotFound
     }
 
-    err = u.ValidateUpdateUser()
+    err := u.ValidateUpdateUser()
     if err != nil {
         log.Println(err)
         return fiber.Map{"errors": err}, fiber.StatusBadRequest
@@ -149,25 +132,9 @@ func (u User) Update() (fiber.Map, int) {
 }
 
 func (u User) Remove() (fiber.Map, int) {
-    sqlQuery := `
-    SELECT
-        u.id
-    FROM users as u
-    WHERE
-        u.id = $1 AND
-        u.status = 1
-    `
-    stmt, err := DB.Prepare(sqlQuery)
-    if err != nil {
-        log.Println(err)
-        return fiber.Map{}, fiber.StatusInternalServerError
-    }
-
-    err = stmt.QueryRow(u.Id).Scan(&u.Id)
-    if err != nil && err != sql.ErrNoRows {
-        log.Println(err)
-        return fiber.Map{}, fiber.StatusInternalServerError
-    } else if err == sql.ErrNoRows {
+    isUser := u.IsValidUser(u.Id)
+    if(!isUser) {
+        log.Println("not found")
         return fiber.Map{}, fiber.StatusNotFound
     }
 
@@ -296,4 +263,27 @@ func (u User) Details() (fiber.Map, int) {
         return fiber.Map{}, fiber.StatusNotFound
     }
     return fiber.Map{"user": u}, fiber.StatusOK
+}
+
+func (u User) IsValidUser(id string) bool {
+    sqlQuery := `
+    SELECT
+        u.id
+    FROM users as u
+    WHERE
+        u.id = $1 AND
+        u.status = 1
+    `
+    stmt, err := DB.Prepare(sqlQuery)
+    if err != nil {
+        log.Println(err)
+        return false
+    }
+
+    err = stmt.QueryRow(id).Scan(&u.Id)
+    if err != nil {
+        log.Println(err)
+        return false
+    }
+    return true
 }
