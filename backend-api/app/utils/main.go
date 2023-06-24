@@ -17,7 +17,7 @@ func Md5Hash(str string) string {
 
 func RemoveCache(prefix string) error {
     var ctx = context.Background()
-    iter := models.RC.Scan(ctx, 0, "users*", 0).Iterator()
+    iter := models.RC.Scan(ctx, 0, prefix + "*", 0).Iterator()
     for iter.Next(ctx) {
         key := iter.Val()
         if err := models.RC.Del(ctx, key).Err(); err != nil {

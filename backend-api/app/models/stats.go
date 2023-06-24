@@ -35,7 +35,7 @@ func (ps PgStats) PSqlStats(l ListParams) (fiber.Map, int) {
     if l.Query != "" {
         condition_count = condition_count + 1
         params = append(params, "%"+l.Query+"%")
-        conditions = append(conditions, " (p.query LIKE $1)")
+        conditions = append(conditions, " (p.query LIKE $2)")
     }
 
     stats := []Stats{}

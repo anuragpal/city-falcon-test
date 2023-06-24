@@ -93,12 +93,12 @@ func (u User) Add() (fiber.Map, int) {
     ) VALUES (
         $1, $2, $3, $4, $5, $6, $7
     ) returning id`, u.FirstName, u.LastName, u.MiddleName, u.Email, string(pwd), time.Now().UTC(), time.Now().UTC()).Scan(&u.Id)
-
+    log.Println(u.Id)
     if err != nil {
         log.Println(err)
         return fiber.Map{}, fiber.StatusInternalServerError
     }
-    return fiber.Map{}, fiber.StatusCreated
+    return fiber.Map{"id": u.Id}, fiber.StatusCreated
 }
 
 func (u User) ValidateUpdateUser() error {
